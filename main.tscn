@@ -1,0 +1,147 @@
+[gd_scene load_steps=9 format=3 uid="uid://debt1vtw72ij3"]
+
+[ext_resource type="Script" uid="uid://dyodvuu0u0l4g" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="PackedScene" uid="uid://fu4l6qebd41q" path="res://lobby.tscn" id="2_h2yge"]
+[ext_resource type="PackedScene" uid="uid://7i7wq8c5s5cf" path="res://DELETEmultiplayer_processing.tscn" id="3_1bvp3"]
+[ext_resource type="Script" uid="uid://be5jldou2oxww" path="res://multiplayer_processing.gd" id="3_5vw27"]
+[ext_resource type="Script" uid="uid://c752ago5p6ngl" path="res://hud.gd" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://gwlpdygamilf" path="res://to_client.gd" id="4_272bh"]
+[ext_resource type="Script" uid="uid://beko5bfb6phl4" path="res://to_server.gd" id="5_5vw27"]
+[ext_resource type="Script" uid="uid://bu3so18sk52lk" path="res://menu_hud.gd" id="6_7mycd"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_ig7tw")
+
+[node name="Lobby" parent="." instance=ExtResource("2_h2yge")]
+
+[node name="Multiplayer_Processing" type="Node" parent="."]
+script = ExtResource("3_5vw27")
+
+[node name="ToClient" type="Node" parent="Multiplayer_Processing"]
+script = ExtResource("4_272bh")
+
+[node name="ToServer" type="Node" parent="Multiplayer_Processing"]
+script = ExtResource("5_5vw27")
+
+[node name="DELETEMultiplayer_Processing" parent="." instance=ExtResource("3_1bvp3")]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("4_1bvp3")
+
+[node name="Host_Game" type="Button" parent="HUD"]
+offset_left = 152.0
+offset_top = 127.0
+offset_right = 427.0
+offset_bottom = 204.0
+theme_override_font_sizes/font_size = 50
+text = "Host Game"
+
+[node name="Join_Game" type="Button" parent="HUD"]
+offset_left = 633.0
+offset_top = 125.0
+offset_right = 887.0
+offset_bottom = 202.0
+theme_override_font_sizes/font_size = 50
+text = "Join Game
+"
+
+[node name="Start_Game" type="Button" parent="HUD"]
+offset_left = 47.0
+offset_top = 298.0
+offset_right = 327.0
+offset_bottom = 375.0
+theme_override_font_sizes/font_size = 50
+text = "Start Game"
+
+[node name="ReturnToTitlePage" type="Button" parent="HUD"]
+offset_left = 288.0
+offset_top = 459.0
+offset_right = 771.0
+offset_bottom = 536.0
+theme_override_font_sizes/font_size = 50
+text = "Return to Title Page"
+
+[node name="IP" type="LineEdit" parent="HUD"]
+offset_left = 435.0
+offset_top = 295.0
+offset_right = 712.0
+offset_bottom = 358.0
+theme_override_font_sizes/font_size = 40
+text = "localhost"
+placeholder_text = "IP"
+
+[node name="Port" type="LineEdit" parent="HUD"]
+offset_left = 840.0
+offset_top = 294.0
+offset_right = 1000.0
+offset_bottom = 357.0
+theme_override_font_sizes/font_size = 40
+text = "8080"
+placeholder_text = "Port"
+
+[node name="WaitingToStart" type="Label" parent="HUD"]
+offset_left = 368.0
+offset_top = 376.0
+offset_right = 713.0
+offset_bottom = 431.0
+theme_override_font_sizes/font_size = 40
+text = "Waiting to Start ..."
+
+[node name="MenuHUD" type="CanvasLayer" parent="."]
+script = ExtResource("6_7mycd")
+
+[node name="MainMenu" type="Control" parent="MenuHUD"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Mouse_Blocker" type="Control" parent="MenuHUD/MainMenu"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Close" type="Button" parent="MenuHUD/MainMenu"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="Settings" type="Button" parent="MenuHUD/MainMenu"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="Quit" type="Button" parent="MenuHUD/MainMenu"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="Settings" type="Control" parent="MenuHUD"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Back" type="Button" parent="MenuHUD/Settings"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="SubViewport" type="SubViewport" parent="."]
+
+[node name="Camera2D" type="Camera2D" parent="SubViewport"]
+zoom = Vector2(0.1, 0.1)
+
+[connection signal="player_connected" from="Lobby" to="." method="add_player"]
+[connection signal="player_disconnected" from="Lobby" to="." method="player_disconnected"]
+[connection signal="server_disconnected" from="Lobby" to="." method="server_disconnected"]
+[connection signal="upon_join" from="Lobby" to="." method="upon_join"]
+[connection signal="pressed" from="HUD/Host_Game" to="." method="host_game"]
+[connection signal="pressed" from="HUD/Join_Game" to="." method="join_game"]
+[connection signal="pressed" from="HUD/Start_Game" to="." method="start_game_normal_button"]
+[connection signal="pressed" from="HUD/ReturnToTitlePage" to="." method="return_to_title_page"]
+[connection signal="pressed" from="MenuHUD/MainMenu/Close" to="MenuHUD" method="close_pressed"]
+[connection signal="pressed" from="MenuHUD/MainMenu/Settings" to="MenuHUD" method="_on_settings_pressed"]
+[connection signal="pressed" from="MenuHUD/Settings/Back" to="MenuHUD" method="settings_back_pressed"]

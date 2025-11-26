@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3 uid="uid://ccpq4d3x5aybn"]
+
+[ext_resource type="Texture2D" uid="uid://xuaqa51pe33v" path="res://ST2_sprites_placeholder/floor_pink.png" id="1_52nmp"]
+[ext_resource type="Texture2D" uid="uid://cn7lxkru4wsvo" path="res://ST2_sprites_placeholder/floor_blue.png" id="2_0778w"]
+[ext_resource type="Texture2D" uid="uid://c4dqkkqk85k7o" path="res://ST2_sprites_placeholder/floor_yellow.png" id="3_ud21l"]
+[ext_resource type="Texture2D" uid="uid://c8d2rdduffwxj" path="res://ST2_sprites_placeholder/floor_green.png" id="4_hovxf"]
+
+[node name="floor_sprite" type="Node2D"]
+
+[node name="pink" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-6, 4)
+scale = Vector2(0.435, 0.435)
+texture = ExtResource("1_52nmp")
+
+[node name="blue" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-6, 4)
+scale = Vector2(0.435, 0.435)
+texture = ExtResource("2_0778w")
+
+[node name="yellow" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-6, 4)
+scale = Vector2(0.435, 0.435)
+texture = ExtResource("3_ud21l")
+
+[node name="green" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(-6, 4)
+scale = Vector2(0.435, 0.435)
+texture = ExtResource("4_hovxf")

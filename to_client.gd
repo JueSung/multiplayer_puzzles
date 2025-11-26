@@ -1,0 +1,78 @@
+extends Node
+
+
+var my_ID = 1 #for instantiation
+
+func set_ID(id):
+	my_ID = id
+
+
+
+
+
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+#from server main send out signal to start games to clients
+func start_the_games():
+	#peer id 0 means all peers besides self
+	rpc_id(0, "recieve_start_game")
+
+#recieve start game signal from server, tells client main to start game
+@rpc("any_peer", "reliable")
+func recieve_start_game():
+	get_parent().start_game(0)
+	
+#called by server, send msg to end game to clients
+func send_end_game():
+	rpc_id(0, "recieve_end_game")
+
+#client recieve msg from server to end game
+@rpc("any_peer", "reliable")
+func recieve_end_game():
+	get_parent().end_game()
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+#called by server to send out msg to clients to delete a particular player bc dead prob
+func send_delete_player(id):
+	rpc_id(0, "recieve_delete_player", id)
+
+@rpc("any_peer", "reliable")
+func recieve_delete_player(id):
+	get_parent().delete_player(id)
+
+
+#called by main to send out updates for both player and object states
+func send_states(states):
+	rpc_id(0, "recieve_states", states)
+
+@rpc("any_peer", "unreliable")
+func recieve_states(states):
+	for key in states:
+		match key:
+			"player_datas":
+				get_parent().update_player_datas(states[key])
+			"objects_datas":
+				get_parent().update_object_states(states[key])
+			# to be deleted:0--------------------------------------------------------------------------
+			"task_elements_times":
+				get_parent().currMap.task_board.update_states(states[key])
+			"task":	
+				get_parent().get_node("Multiplayer_Tasks").recieve_process_update_task(states[key])
+			#----------------------------------------------------------------------------------------
+			_:
+				print("unknown type of state sent server to client \'recieve_states\' in multiplayer_processing")
+	##7/30/2025 was when change was made
+	##get_parent().update_player_datas(states["player_datas"])
+	##get_parent().update_object_states(states["objects_datas"])
+	##get_parent().currMap.task_board.update_states(states["task_elements_times"])
+	##get_parent().get_node("Multiplayer_Tasks").recieve_process_update_task(states["task"])
+
+#send info to delete object
+func send_delete_objects(objects_to_be_deleted):
+	if len(objects_to_be_deleted) > 0:
+		rpc_id(0, "recieve_delete_objects", objects_to_be_deleted)
+
+#recieve information to delete object
+@rpc("any_peer", "reliable")
+func recieve_delete_objects(objects_to_be_deleted):
+	get_parent().client_delete_objects(objects_to_be_deleted)
