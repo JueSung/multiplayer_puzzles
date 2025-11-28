@@ -9,7 +9,7 @@ var u = 400
 var t = 100#wall thickness
 var l = 100 #length of location task area thing
 
-##var SS = preload("res://surface.tscn")
+var SS = preload("res://surface.tscn")
 ##var FS = preload("res://floor_sprite.tscn")
 
 var walls = [] #just a list of all the walls
@@ -19,6 +19,10 @@ var floors = [] #just a list of all the floors
 func _ready():
 	randomize()
 	main = get_tree().root.get_node("Main")
+	
+	var floor_instance = SS.instantiate()
+	floor_instance.setUp(Vector2(10*u, t), Vector2(t, 3 * u), 0)
+	add_child(floor_instance)
 	
 	## wallSetUp()
 	

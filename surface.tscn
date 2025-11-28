@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://bivtldvvw3olr" path="res://surface.gd" id="1_tap8s"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5ax0b"]
-size = Vector2(400, 400)
 
 [node name="Surface" type="StaticBody2D"]
 collision_layer = 2

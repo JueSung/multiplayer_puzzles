@@ -140,7 +140,7 @@ zoom = Vector2(0.1, 0.1)
 [connection signal="upon_join" from="Multiplayer_Processing/Lobby" to="Multiplayer_Processing" method="upon_join"]
 [connection signal="pressed" from="HUD/Host_Game" to="." method="host_game"]
 [connection signal="pressed" from="HUD/Join_Game" to="." method="join_game"]
-[connection signal="pressed" from="HUD/Start_Game" to="." method="start_game"]
+[connection signal="pressed" from="HUD/Start_Game" to="." method="start_game_normal_button"]
 [connection signal="pressed" from="HUD/ReturnToTitlePage" to="." method="return_to_title_page"]
 [connection signal="pressed" from="MenuHUD/MainMenu/Close" to="MenuHUD" method="close_pressed"]
 [connection signal="pressed" from="MenuHUD/MainMenu/Settings" to="MenuHUD" method="_on_settings_pressed"]

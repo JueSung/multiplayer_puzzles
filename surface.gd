@@ -12,7 +12,7 @@ var panel_sprites = []
 
 ##var panel_sprite_scene = preload("res://wall_sprite.tscn")
 
-func setUp(size, pos, rot, wall_type):
+func setUp(size, pos, rot):
 	$CollisionShape2D.shape = $CollisionShape2D.shape.duplicate() #separates resource so same scene shapes are independent
 	$CollisionShape2D.shape.size = size
 	

@@ -12,14 +12,14 @@ func set_ID(id):
 
 #vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 #from server main send out signal to start games to clients
-func start_the_games():
+func send_start_game():
 	#peer id 0 means all peers besides self
 	rpc_id(0, "recieve_start_game")
 
 #recieve start game signal from server, tells client main to start game
 @rpc("any_peer", "reliable")
 func recieve_start_game():
-	get_parent().start_game(0)
+	get_parent().start_game()
 	
 #called by server, send msg to end game to clients
 func send_end_game():
