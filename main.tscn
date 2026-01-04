@@ -1,8 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://debt1vtw72ij3"]
+[gd_scene load_steps=8 format=3 uid="uid://debt1vtw72ij3"]
 
 [ext_resource type="Script" uid="uid://dyodvuu0u0l4g" path="res://main.gd" id="1_ig7tw"]
 [ext_resource type="PackedScene" uid="uid://fu4l6qebd41q" path="res://lobby.tscn" id="2_h2yge"]
-[ext_resource type="PackedScene" uid="uid://7i7wq8c5s5cf" path="res://DELETEmultiplayer_processing.tscn" id="3_1bvp3"]
 [ext_resource type="Script" uid="uid://be5jldou2oxww" path="res://multiplayer_processing.gd" id="3_5vw27"]
 [ext_resource type="Script" uid="uid://c752ago5p6ngl" path="res://hud.gd" id="4_1bvp3"]
 [ext_resource type="Script" uid="uid://gwlpdygamilf" path="res://to_client.gd" id="4_272bh"]
@@ -22,8 +21,6 @@ script = ExtResource("4_272bh")
 
 [node name="ToServer" type="Node" parent="Multiplayer_Processing"]
 script = ExtResource("5_5vw27")
-
-[node name="DELETEMultiplayer_Processing" parent="." instance=ExtResource("3_1bvp3")]
 
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("4_1bvp3")
@@ -134,6 +131,14 @@ offset_bottom = 8.0
 [node name="Camera2D" type="Camera2D" parent="SubViewport"]
 zoom = Vector2(0.1, 0.1)
 
+[node name="dev_end_game" type="Button" parent="."]
+offset_left = 1399.0
+offset_top = 918.0
+offset_right = 1869.0
+offset_bottom = 1034.0
+theme_override_font_sizes/font_size = 50
+text = "DEV: end game"
+
 [connection signal="player_connected" from="Multiplayer_Processing/Lobby" to="Multiplayer_Processing" method="register_player"]
 [connection signal="player_disconnected" from="Multiplayer_Processing/Lobby" to="Multiplayer_Processing" method="player_disconnected"]
 [connection signal="server_disconnected" from="Multiplayer_Processing/Lobby" to="Multiplayer_Processing" method="server_disconnected"]
@@ -145,3 +150,4 @@ zoom = Vector2(0.1, 0.1)
 [connection signal="pressed" from="MenuHUD/MainMenu/Close" to="MenuHUD" method="close_pressed"]
 [connection signal="pressed" from="MenuHUD/MainMenu/Settings" to="MenuHUD" method="_on_settings_pressed"]
 [connection signal="pressed" from="MenuHUD/Settings/Back" to="MenuHUD" method="settings_back_pressed"]
+[connection signal="pressed" from="dev_end_game" to="." method="end_game"]

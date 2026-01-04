@@ -6,7 +6,9 @@ var main = null
 var my_ID
 
 const SPEED = 840# * 3
-const GRAVITY = 900
+const GRAVITY = 2800
+
+var JUMP_VELOCITY = -1 * sqrt(GRAVITY * 2 * 240)
 
 #user input info ---------
 var left = false
@@ -17,9 +19,6 @@ var left_click = false
 var right_click = false
 var mouse_position = Vector2(0,0)
 #-------------------------
-
-var task_locations = []
-var inTask = false #whether in a task or not
 
 var data = {}
 
@@ -49,11 +48,15 @@ func _process(delta):
 		direction_x -= 1
 	
 	if not is_on_floor():
-		print("RAN")
-		velocity.y += GRAVITY * delta
+		if velocity.y <= 0 || up:
+			velocity.y += GRAVITY * delta
+		else:
+			velocity.y += GRAVITY * 1.5 * delta 
 	
-	if up:
-		velocity.y = -1000
+	if up and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+	elif not up and not is_on_floor() and velocity.y < 0:
+		velocity.y -= (5 * velocity.y) * delta
 	
 	
 	velocity.x = move_toward(velocity.x, direction_x * SPEED, SPEED * delta * 30)
@@ -65,7 +68,6 @@ func _process(delta):
 		
 	
 	move_and_slide()
-	
 	
 	data["position"] = position
 
@@ -84,5 +86,10 @@ func update_inputs(inputs):
 	mouse_position.y = inputs["mouse_position_y"]
 
 
-func update_game_state(dataa):
-	global_position = dataa["position"]
+func update_state(dataa):
+	for key in dataa:
+		match key:
+			"position":
+				global_position = dataa["position"]
+			_:
+				print("unknown updating player data type")

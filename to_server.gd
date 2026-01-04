@@ -7,6 +7,10 @@ var clientToServerInfo = {}
 
 func set_ID(id):
 	my_ID = id
+	
+	# first time running after launch, process already running, but if disconnect, then will turn off from main
+	# so when rejoin, need to have process run again
+	set_process(true)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

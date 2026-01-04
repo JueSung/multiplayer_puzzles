@@ -1,4 +1,5 @@
 extends Node
+class_name Multiplayer_Processing
 
 var players_IDs = [] #for host, #in order as joined from host perspective
 var players_inputs = {} #dictionary of player id : dictionary of inputs
@@ -13,21 +14,23 @@ var clientToServerInfo = {}
 var states = {
 } 
 
-var my_ID
+var my_ID	
 
+# called by upon_join() called by Lobby
 func set_id(id):
 	my_ID = id
 	
 	if my_ID == 1:
 		set_process(true)
+	$ToClient.set_ID(id)
+	$ToServer.set_ID(id)
 
 func _ready():
 	$Lobby.player_loaded.rpc_id(1)
-	
 	#initialize process to be not run, when set id, id = 1 will have process running
 	set_process(false)
 
-
+# called by Lobby when joining a host
 func upon_join(peer_id):
 	get_parent().upon_join(peer_id)
 	set_id(peer_id)
@@ -57,11 +60,17 @@ func server_disconnected():
 	return_to_title_page()
 
 func start_game():
-	$ToClient.send_start_game()
+	if my_ID == 1:
+		$ToClient.send_start_game()
+	else:
+		get_parent().start_game()
 	
 func end_game():
 	objects_datas = {}
-	$ToClient.send_end_game()
+	# player_datas = {}
+	
+	if my_ID == 1:
+		$ToClient.send_end_game()
 	
 
 func return_to_title_page():
@@ -75,7 +84,7 @@ func set_player_inputs(id, inputs):
 	players_inputs[id] = inputs
 
 #only runs if my_ID == 1
-func _process(delta):
+func _process(_delta):
 	var player_objects = get_parent().get_player_objects()
 	# update player_objects input values
 	for id in player_objects: #enhanced for loop
@@ -84,28 +93,28 @@ func _process(delta):
 		# update player_datas
 		player_datas[id] = player_objects[id].get_data()
 	
-	if get_parent().is_inGame():
+	if get_parent().is_inGame(): # CHANGE possibly not make is_inGame for in game lobby
 		var objects = get_parent().get_objects()
 		# update object datas from objects
 		for key in objects:
 			if is_instance_valid(objects[key]):
 				objects_datas[key] = objects[key].get_data()
 		
-		#$Multiplayer_Processing.send_object_states(objects_datas) #handles objects to be added via seeing new objects
-		states["player_datas"] = player_datas
-		states["objects_datas"] = objects_datas
+	#$Multiplayer_Processing.send_object_states(objects_datas) #handles objects to be added via seeing new objects
+	states["player_datas"] = player_datas
+	states["objects_datas"] = objects_datas
 		
-		$ToClient.send_delete_objects(objects_to_be_deleted)
-		objects_to_be_deleted = []
-	
+	$ToClient.send_delete_objects(objects_to_be_deleted)
+	objects_to_be_deleted = []
 	$ToClient.send_states(states)
 
 # ran by clients::_____________________
 func update_player_datas(player_datass):
+	var player_objects = get_parent().get_player_objects() # can you make without calling every frame???
 	player_datas = player_datass	
-	#for id in player_datas:
-		#if player_objects.has(id) and is_instance_valid(player_objects[id]):
-			#player_objects[id].update_game_state(player_datass[id])
+	for id in player_datas:
+		if player_objects.has(id) and is_instance_valid(player_objects[id]):
+			player_objects[id].update_state(player_datass[id])
 	
 func update_object_states(objects_datass):
 	var objects = get_parent().get_objects()

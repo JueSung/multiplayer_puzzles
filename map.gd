@@ -21,7 +21,7 @@ func _ready():
 	main = get_tree().root.get_node("Main")
 	
 	var floor_instance = SS.instantiate()
-	floor_instance.setUp(Vector2(10*u, t), Vector2(t, 3 * u), 0)
+	floor_instance.setUp(Vector2(10*u, t), Vector2(t, 2 * u), 0)
 	add_child(floor_instance)
 	
 	## wallSetUp()

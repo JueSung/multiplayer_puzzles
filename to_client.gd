@@ -3,10 +3,13 @@ extends Node
 
 var my_ID = 1 #for instantiation
 
+var main = null
+
 func set_ID(id):
 	my_ID = id
 
-
+func _ready():
+	main = get_tree().root.get_node("Main")
 
 
 
@@ -28,7 +31,7 @@ func send_end_game():
 #client recieve msg from server to end game
 @rpc("any_peer", "reliable")
 func recieve_end_game():
-	get_parent().end_game()
+	main.end_game()
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -38,10 +41,10 @@ func send_delete_player(id):
 
 @rpc("any_peer", "reliable")
 func recieve_delete_player(id):
-	get_parent().delete_player(id)
+	get_parent().remove_player(id)
 
 
-#called by main to send out updates for both player and object states
+#called by host multiplayer_processing to send out updates for both player and object states
 func send_states(states):
 	rpc_id(0, "recieve_states", states)
 
@@ -53,12 +56,6 @@ func recieve_states(states):
 				get_parent().update_player_datas(states[key])
 			"objects_datas":
 				get_parent().update_object_states(states[key])
-			# to be deleted:0--------------------------------------------------------------------------
-			"task_elements_times":
-				get_parent().currMap.task_board.update_states(states[key])
-			"task":	
-				get_parent().get_node("Multiplayer_Tasks").recieve_process_update_task(states[key])
-			#----------------------------------------------------------------------------------------
 			_:
 				print("unknown type of state sent server to client \'recieve_states\' in multiplayer_processing")
 	##7/30/2025 was when change was made

@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://7i7wq8c5s5cf"]
-
-[ext_resource type="Script" uid="uid://ct1vhas6cscnf" path="res://DELETEmultiplayer_processing.gd" id="1_7u7qh"]
-
-[node name="Multiplayer_Processing" type="Node"]
-script = ExtResource("1_7u7qh")
