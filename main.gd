@@ -28,7 +28,10 @@ var sound_percentage = 100
 
 func _ready():
 	#$HUD.show()
-	pass
+	
+	# sets player_objects variable in multiplayer_processing to the same one as main via alias
+	$Multiplayer_Processing.set_player_objects(player_objects)
+	$Multiplayer_Processing.set_objects(objects)
 
 func upon_join(peer_id):
 	set_ID(peer_id)
@@ -51,6 +54,7 @@ func set_ID(id):
 func add_player(peer_id):
 	var player_instance = PlayerScene.instantiate()
 	player_instance.set_ID(peer_id)
+	player_instance.set_multiplayer_authority(peer_id)
 	
 	#figure out player position, may be handled by Map in the future
 	if my_ID == 1:
@@ -58,7 +62,7 @@ func add_player(peer_id):
 		player_instance.position = Vector2(300 + len(player_objects) * 100,300)
 	else:
 		#just yeet them up there, their positions will be updated shortly
-		player_instance.position = Vector2(-100, 540)
+		player_instance.position = Vector2(500, 540)
 
 	player_objects[peer_id] = player_instance
 	add_child(player_instance)
@@ -93,12 +97,12 @@ func return_to_title_page():
 	
 	for id in player_objects:
 		player_objects[id].queue_free()
-	player_objects = {}
+	player_objects.clear()
 	
 	
 	for id in objects:
 		objects[id].queue_free()
-	objects = {}
+	objects.clear()
 	
 	objects_to_be_deleted = []
 	
@@ -151,14 +155,14 @@ func end_game():
 	
 	#for id in player_objects:
 	#	player_objects[id].queue_free()
-	#player_objects = {}
-	#player_datas = {}
+	#player_objects.clear()
+	#player_datas.clear()
 	
-	#players_inputs = {}
+	#players_inputs.clear()
 	
 	for id in objects:
 		objects[id].queue_free()
-	objects = {}
+	objects.clear()
 	objects_to_be_deleted = []
 	
 	$HUD.visible = true

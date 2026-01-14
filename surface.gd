@@ -20,6 +20,8 @@ func setUp(size, pos, rot):
 	rotation = rot
 
 func _ready():
-	if get_tree().root.get_node("Main").my_ID != 1:
-		$CollisionShape2D.disabled = true
+	pass
+	# need to hitboxes to be on for client side prediction of client side entities that interact with it
+	## if get_tree().root.get_node("Main").my_ID != 1:
+	## 	$CollisionShape2D.disabled = true
 	

@@ -5,15 +5,31 @@ var my_ID = 1 #for instantiation
 
 var main = null
 
+var player_objects = {} # OWNED BY MAIN; empty for initialized will be overwritten by set_player_objects()
+var objects = {} # OWNED BY MAIN 
+
+######################################################################################################
+##--------------------------------------   SETUP STUFF   ---------------------------------------------
+######################################################################################################
+
 func set_ID(id):
 	my_ID = id
 
+func set_player_objects(player_objectss):
+	player_objects = player_objectss
+
+func set_objects(objectss):
+	objects = objectss
+
+######################################################################################################
+##------------------------------------   REST OF STUFF   ---------------------------------------------
+######################################################################################################
 func _ready():
 	main = get_tree().root.get_node("Main")
 
 
 
-#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+#vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvfvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 #from server main send out signal to start games to clients
 func send_start_game():
 	#peer id 0 means all peers besides self
@@ -50,14 +66,45 @@ func send_states(states):
 
 @rpc("any_peer", "unreliable")
 func recieve_states(states):
+	var players_last_inputs_num = {}
+	if states.has("players_last_inputs_num"):
+		players_last_inputs_num = states["players_last_inputs_num"]
 	for key in states:
 		match key:
 			"player_datas":
-				get_parent().update_player_datas(states[key])
+				var player_datas = states[key]
+				for id in player_datas:
+					# just checking if last_input_num for particular id is in dictionary
+					var last_inputs_num = -1
+					if players_last_inputs_num.has(id):
+						last_inputs_num = players_last_inputs_num[id]
+					# if player_object for said id available/valid, send data + last_inputs_num
+					if player_objects.has(id) and is_instance_valid(player_objects[id]):
+						player_objects[id].update_state(player_datas[id], last_inputs_num)
 			"objects_datas":
-				get_parent().update_object_states(states[key])
+				var objects_datass = states[key]
+				for key2 in objects_datass:
+					#handle new objects, creation
+					if not objects.has(key2):
+						var type = objects_datass[key2]["type"]
+						match type:
+							##"Sawblade":
+							##	var obj = Scenes[type].instantiate()
+							##	objects[key2] = obj
+							##	add_child(obj)
+							##"Boom":
+							##	var obj = Scenes[type].instantiate()
+							##	objects[key2] = obj
+							##	add_child(obj)
+							_: #else
+								pass
+					else:
+						if is_instance_valid(objects[key2]):
+							objects[key2].update_game_state(objects_datass[key2])
+			"players_last_inputs_num":
+				pass # do nothing, handled before match case blockcuz needed earlier
 			_:
-				print("unknown type of state sent server to client \'recieve_states\' in multiplayer_processing")
+				print("\'",key, "\' is unknown type of state sent server to client \'recieve_states\' in to_client")
 	##7/30/2025 was when change was made
 	##get_parent().update_player_datas(states["player_datas"])
 	##get_parent().update_object_states(states["objects_datas"])

@@ -2,15 +2,34 @@ extends Node
 
 var my_ID = 1 #for instantiation
 var inputs = {}
+var players_inputs = {} # for host side, defined in by alias setup, owned by multiplayer_processing
+var players_last_inputs_num = {} # for host, insantiated for clarity, is defined by alias in setup, owned by multiplayer_processing
+var inputs_queue = [] # queue of sets of inputs # each element is [order number, input set]
+var inputs_counter = 0 # int value for keeping track order of input setes
 
 var clientToServerInfo = {}
 
+var network_timer = 0.0 # use to check tick speed stuff
+var tick_length = 1/20.0
+
+######################################################################################################
+##--------------------------------------   SETUP STUFF   ---------------------------------------------
+######################################################################################################
 func set_ID(id):
 	my_ID = id
 	
 	# first time running after launch, process already running, but if disconnect, then will turn off from main
 	# so when rejoin, need to have process run again
 	set_process(true)
+
+func set_players_inputs(players_inputss):
+	players_inputs = players_inputss
+
+func set_players_last_inputs_num(players_last_inputs_numm):
+	players_last_inputs_num = players_last_inputs_numm
+######################################################################################################
+##------------------------------------   REST OF STUFF   ---------------------------------------------
+######################################################################################################
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -25,25 +44,47 @@ func _ready():
 		"mouse_position_y" : 0
 	}
 
+# used by players/ client controlled entities
+func get_inputs_queue():
+	return inputs_queue
+
+# inputs sampled as fast as possible, if at least one of input sets before being sent is true, then its true
+# in the combined set when sent to server, reset after sent.
 func _process(delta):
-	#set inputs------------------------------------------------
-	inputs["left"] = Input.is_action_pressed("left")
-	inputs["right"] = Input.is_action_pressed("right")
-	inputs["up"] = Input.is_action_pressed("up")
-	inputs["down"] = Input.is_action_pressed("down")
-	inputs["left_click"] = Input.is_action_pressed("left_click")
-	inputs["right_click"] = Input.is_action_pressed("right_click")
+	#set inputs----------- sets are or'ed with previous and reset every time whole thing saved
+	inputs["left"] = Input.is_action_pressed("left") or inputs["left"]
+	inputs["right"] = Input.is_action_pressed("right") or inputs["right"]
+	inputs["up"] = Input.is_action_pressed("up") or inputs["up"]
+	inputs["down"] = Input.is_action_pressed("down") or inputs["down"]
+	inputs["left_click"] = Input.is_action_pressed("left_click") or inputs["left_click"]
+	inputs["right_click"] = Input.is_action_pressed("right_click") or inputs["right_click"]
 
 	inputs["mouse_position_x"] = get_viewport().get_mouse_position().x
 	inputs["mouse_position_y"] = get_viewport().get_mouse_position().y
 	#-----------------------------------------------------------------------
 	
-	var packet = JSON.stringify(inputs)
-	append_client_to_server_info("inputs", [my_ID, packet])
-	
-	#every frame calls send info to server
-	process_send_to_server()
+	# only send every tick_length:
+	network_timer += delta
+	if network_timer >= tick_length:
+		append_client_to_server_info("inputs", [my_ID, inputs_counter,inputs.duplicate()])
+		inputs_queue.append([inputs_counter, inputs.duplicate()])
+		inputs_counter += 1
+		
+		#every frame calls send info to server
+		process_send_to_server()
+		
+		# reset inputs
+		inputs["left"] = false
+		inputs["right"] = false
+		inputs["up"] = false
+		inputs["down"] = false
+		inputs["left_click"] = false
+		inputs["right_click"] = false
+		
+		network_timer -= tick_length
 
+func get_inputs():
+	return inputs
 
 #add data to dictionary sorted by type and during process will send to server
 func append_client_to_server_info(type, info):
@@ -72,7 +113,7 @@ func process_recieve_from_client(info):
 	for type in info:
 		match type:
 			"inputs":
-				recieve_client_inputs(info[type][0], info[type][1])			
+				recieve_client_inputs(info[type][0], info[type][1], info[type][2])			
 			_:
 				print("unknown process info sent to server from client sent")
 ####################################################################################################
@@ -80,6 +121,7 @@ func process_recieve_from_client(info):
 ####################################################################################################
 
 #recieving client inputs from client Main
-func recieve_client_inputs(id, packet):
-	var inputs = JSON.parse_string(packet)
-	get_parent().set_player_inputs(id, inputs)
+func recieve_client_inputs(id, order_num, inputs):
+	players_inputs[id] = inputs
+	players_last_inputs_num[id] = order_num
+	
